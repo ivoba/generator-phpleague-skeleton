@@ -2,6 +2,8 @@
 
 > [Yeoman](http://yeoman.io) generator
 
+Generator that setups and customizes the php package libary skeleton https://github.com/thephpleague/skeleton with your properties.  
+Best practice php package template!
 
 #WIP atm !
 
