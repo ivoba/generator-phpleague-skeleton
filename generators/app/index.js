@@ -32,14 +32,26 @@ module.exports = yeoman.generators.Base.extend({
 
       // Have Yeoman greet the user.
       this.log(yosay(
-        'Welcome to the praiseworthy ' + chalk.red('PhpleagueSkeleton') + ' generator!'
+        '' + chalk.red('PhpleagueSkeleton') + ' generator to ease php package creation!'
       ));
 
       var prompts = [
         {
           name: 'projectName',
-          message: 'What is the name of your project?',
-          default: path.join(getUserHome().split(path.sep).pop(), '/', _.slugify(process.cwd().split(path.sep).pop()))
+          message: 'What is the name of your package?',
+          default: _.slugify(process.cwd().split(path.sep).pop())
+        },
+        {
+          name: 'vendorName',
+          message: 'What is the vendor name (f.e. github name)?',
+          default: path.join(getUserHome().split(path.sep).pop())
+        },
+        {
+          name: 'organizationName',
+          message: 'What is the organization name? (defaults to vendor name)',
+          default: function(answers) {
+            return answers.vendorName;
+          }
         },
         {
           name: 'projectDescription',
@@ -52,33 +64,30 @@ module.exports = yeoman.generators.Base.extend({
         },
         {
           name: 'projectHomepage',
-          message: 'What is the project homepage?'
-        },
-        {
-          name: 'projectNamespace',
-          message: 'What is the project namespace?',
-          default: _.capitalize((path.join(getUserHome().split(path.sep).pop()))) + '\\\\' + _.camelize(_.capitalize((process.cwd().split(path.sep).pop())))
+          message: 'What is the project homepage?',
+          default: function(answers) {
+            return 'https://www.github.com/' + answers.organizationName + '/' + answers.projectName;
+          }
         },
         {
           name: 'ownerName',
-          message: 'What is your name?',
+          message: 'What is the author name?',
           default: this.owner.name
         },
         {
           name: 'ownerEmail',
-          message: 'What is your email?',
+          message: 'What is author email?',
           default: this.owner.email
         },
         {
           name: 'ownerHomepage',
-          message: 'What is your homepage?'
+          message: 'What is author homepage?'
         }
       ];
 
       this.prompt(prompts, function (props) {
         this.props = props;
         // To access props later use this.props.someOption;
-
         done();
       }.bind(this));
     },
@@ -98,15 +107,21 @@ module.exports = yeoman.generators.Base.extend({
     writing: {
       replace: function () {
         var reProjectHomepage = new RegExp('https://github.com/thephpleague/:package_name', 'g'),
-          reProjectName = new RegExp('league/:package_name', 'g'),
+          reOrganizationName = new RegExp('thephpleague', 'g'),
+          reVendorName = new RegExp('league', 'g'),
+          reVendorNameCapitalized = new RegExp('League', 'g'),
+          reSkeleton = new RegExp('Skeleton', 'g'),
+          reSkeletonLower = new RegExp('skeleton', 'g'),
           rePackageName = new RegExp(':package_name', 'g'),
           reDescription = new RegExp(':package_description', 'g'),
           reAuthorName = new RegExp(':author_name', 'g'),
+          reAuthorUserName = new RegExp(':author_username', 'g'),
           reAuthorHomepage = new RegExp(':author_website', 'g'),
-          reAuthorEmail = new RegExp(':author_email', 'g'),
-          reNamespace = new RegExp('League\\\\\\\\Skeleton', 'g');
-        
-        this.log(this.props);
+          reAuthorEmail = new RegExp(':author_email', 'g');
+
+        if (this.props.organizationName == '') {
+          this.props.organizationName = this.props.vendorName;
+        }
         var yeo = this;
         this.log('cloning skeleton repo');
         exec('git clone git@github.com:thephpleague/skeleton.git .', function (err, stdout, stderr) {
@@ -114,24 +129,20 @@ module.exports = yeoman.generators.Base.extend({
           rmdir('.git', function (error) {
             yeo.log('removed .git folder');
             glob("**/*.*", function (er, files) {
-              yeo.log(files);
-              /*
-              todo:
-              - replace league keyword
-              - replace League
-              - replace :author_username
-              - avoid thephpivo/testlib
-              - replace  League\Skeleton in php files &readme
-              - replace League Test Suite
-              - replace **Note:** Replace ```ee``` ```:author_username``` ```qq``` ```ww``` ```ivo/testlib``` ```assa``` with their correct values in [README.md](README.md), [CHANGELOG.md](CHANGELOG.md), [CONTRIBUTING.md](CONTRIBUTING.md), [LICENSE.md](LICENSE.md) and [composer.json](composer.json) files, then delete this line.
-               */
               files.forEach(function (file) {
                 var fileContent = htmlWiring.readFileAsString(file);
                 var newContent = fileContent.replace(reProjectHomepage, yeo.props.projectHomepage)
-                  .replace(reProjectName, yeo.props.projectName)
+                  .replace(/\*\*Note:(.*)\n/, "")
+                  .replace(reOrganizationName, yeo.props.organizationName)
+                  .replace(reVendorName, yeo.props.vendorName)
+                  .replace(reVendorNameCapitalized, _.capitalize(yeo.props.vendorName))
                   .replace(rePackageName, yeo.props.projectName)
+                  .replace(reSkeleton, _.capitalize(yeo.props.projectName))
+                  .replace(reSkeletonLower, yeo.props.projectName)
                   .replace(reDescription, yeo.props.projectDescription)
-                  .replace(reNamespace, yeo.props.projectNamespace)
+                  //.replace(reNamespacePsr4, yeo.props.projectNamespacePsr4)
+                  //.replace(reNamespace, yeo.props.projectNamespace)
+                  .replace(reAuthorUserName, yeo.props.vendorName)
                   .replace(reAuthorName, yeo.props.ownerName)
                   .replace(reAuthorHomepage, yeo.props.ownerHomepage)
                   .replace(reAuthorEmail, yeo.props.ownerEmail);
