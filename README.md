@@ -1,11 +1,7 @@
 # generator-phpleague-skeleton [![Build Status](https://secure.travis-ci.org/ivoba/generator-phpleague-skeleton.png?branch=master)](https://travis-ci.org/ivoba/generator-phpleague-skeleton)
 
-> [Yeoman](http://yeoman.io) generator
-
-Generator that setups and customizes the php package libary skeleton https://github.com/thephpleague/skeleton with your properties.  
+[Yeoman](http://yeoman.io) generator that setups and customizes the php package skeleton https://github.com/thephpleague/skeleton with your properties.  
 Best practice php package template, fast!
-
-#WIP atm !
 
 ## What does it?
 - git clone git@github.com:thephpleague/skeleton.git
