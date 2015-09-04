@@ -124,6 +124,8 @@ module.exports = yeoman.generators.Base.extend({
         }
         var yeo = this;
         this.log('cloning skeleton repo');
+        //todo possibly its better to do the cloning in sync mode
+        // we cant use remote() here as the .gitattributes strips out tests & other files from the archive
         exec('git clone git@github.com:thephpleague/skeleton.git .', function (err, stdout, stderr) {
           yeo.log('cloned repo: ' + stdout);
           rmdir('.git', function (error) {
@@ -140,8 +142,6 @@ module.exports = yeoman.generators.Base.extend({
                   .replace(reSkeleton, _.capitalize(yeo.props.projectName))
                   .replace(reSkeletonLower, yeo.props.projectName)
                   .replace(reDescription, yeo.props.projectDescription)
-                  //.replace(reNamespacePsr4, yeo.props.projectNamespacePsr4)
-                  //.replace(reNamespace, yeo.props.projectNamespace)
                   .replace(reAuthorUserName, yeo.props.vendorName)
                   .replace(reAuthorName, yeo.props.ownerName)
                   .replace(reAuthorHomepage, yeo.props.ownerHomepage)
